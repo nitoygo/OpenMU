@@ -1794,6 +1794,9 @@
   <data name="RoleLoginTicket" xml:space="preserve">
     <value>Nur Anmelde-Tickets</value>
   </data>
+  <data name="RoleAccountLink" xml:space="preserve">
+    <value>Nur Kontoverknüpfungen</value>
+  </data>
   <data name="SelectAll" xml:space="preserve">
     <value>Alle auswählen</value>
   </data>

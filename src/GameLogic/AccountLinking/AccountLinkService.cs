@@ -30,6 +30,12 @@ public sealed class AccountLinkService
     public const string DiscordProvider = "discord";
 
     /// <summary>
+    /// The password hash of an account which was created for a linked user and has no password yet.
+    /// It's a well-formed BCrypt hash, so every password check simply fails, but no password produces it.
+    /// </summary>
+    public const string NoPasswordHash = "$2a$11$......................0000000000000000000000000000000";
+
+    /// <summary>
     /// The characters of a code. Characters which are easily confused, like 0 and O, are left out.
     /// </summary>
     private const string CodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -112,6 +118,86 @@ public sealed class AccountLinkService
         return result is { } linked
             ? new AccountLinkResult(linked.AccountId, linked.CharacterName, linked.PreviousUserId)
             : null;
+    }
+
+    /// <summary>
+    /// Links a user of the external service to an account, e.g. after a website verified both the user and
+    /// the password of the account. Unlike <see cref="LinkAsync"/>, an existing link is never moved or replaced.
+    /// A pending code of the account becomes invalid.
+    /// </summary>
+    /// <param name="loginName">The login name of the account.</param>
+    /// <param name="provider">The name of the external service.</param>
+    /// <param name="externalUserId">The identifier of the user in the external service.</param>
+    /// <param name="externalUserName">The name of the user in the external service.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result.</returns>
+    public async ValueTask<DirectLinkStatus> LinkDirectlyAsync(string loginName, string provider, string externalUserId, string externalUserName, CancellationToken cancellationToken = default)
+    {
+        using var context = this._createContext();
+        if (await context.GetAccountIdByLoginNameAsync(loginName, cancellationToken).ConfigureAwait(false) is not { } accountId)
+        {
+            return DirectLinkStatus.AccountNotFound;
+        }
+
+        if (await context.GetAccountExternalLinkByUserAsync(provider, externalUserId, cancellationToken).ConfigureAwait(false) is { } userLink)
+        {
+            return userLink.AccountId == accountId ? DirectLinkStatus.Linked : DirectLinkStatus.UserLinkedToOtherAccount;
+        }
+
+        var link = await context.GetAccountExternalLinkAsync(accountId, provider, cancellationToken).ConfigureAwait(false);
+        if (link?.ExternalUserId is not null)
+        {
+            return DirectLinkStatus.AccountLinkedToOtherUser;
+        }
+
+        if (link is null)
+        {
+            link = context.CreateNew<AccountExternalLink>();
+            link.AccountId = accountId;
+            link.Provider = provider;
+        }
+
+        this.Confirm(link, externalUserId, externalUserName);
+        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return DirectLinkStatus.Linked;
+    }
+
+    /// <summary>
+    /// Creates an account which is linked to a user of the external service, and has no usable password
+    /// (<see cref="NoPasswordHash"/>) until one is set. Both are saved together, so there is never an account without a way to log in.
+    /// </summary>
+    /// <param name="loginName">The login name of the new account.</param>
+    /// <param name="provider">The name of the external service.</param>
+    /// <param name="externalUserId">The identifier of the user in the external service.</param>
+    /// <param name="externalUserName">The name of the user in the external service.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The result.</returns>
+    public async ValueTask<DirectLinkStatus> CreateLinkedAccountAsync(string loginName, string provider, string externalUserId, string externalUserName, CancellationToken cancellationToken = default)
+    {
+        using var context = this._createContext();
+        if (await context.GetAccountExternalLinkByUserAsync(provider, externalUserId, cancellationToken).ConfigureAwait(false) is not null)
+        {
+            return DirectLinkStatus.UserLinkedToOtherAccount;
+        }
+
+        if (await context.GetAccountIdByLoginNameAsync(loginName, cancellationToken).ConfigureAwait(false) is not null)
+        {
+            return DirectLinkStatus.LoginNameTaken;
+        }
+
+        var account = context.CreateNew<Account>();
+        account.LoginName = loginName;
+        account.EMail = string.Empty;
+        account.PasswordHash = NoPasswordHash;
+        account.State = AccountState.Normal;
+        account.RegistrationDate = this._timeProvider.GetUtcNow().UtcDateTime;
+
+        var link = context.CreateNew<AccountExternalLink>();
+        link.AccountId = account.GetId();
+        link.Provider = provider;
+        this.Confirm(link, externalUserId, externalUserName);
+        await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+        return DirectLinkStatus.Linked;
     }
 
     /// <summary>
@@ -273,5 +359,14 @@ public sealed class AccountLinkService
         }
 
         return link.Notifications;
+    }
+
+    private void Confirm(AccountExternalLink link, string externalUserId, string externalUserName)
+    {
+        link.ExternalUserId = externalUserId;
+        link.ExternalUserName = externalUserName;
+        link.LinkedAt = this._timeProvider.GetUtcNow().UtcDateTime;
+        link.CodeHash = null;
+        link.CodeExpiresAt = null;
     }
 }

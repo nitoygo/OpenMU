@@ -7394,6 +7394,15 @@ namespace MUnique.OpenMU.Web.AdminPanel.Properties {
                 return ResourceManager.GetString("RoleLoginTicket", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Account links only.
+        /// </summary>
+        public static string RoleAccountLink {
+            get {
+                return ResourceManager.GetString("RoleAccountLink", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to Operator.

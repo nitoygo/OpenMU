@@ -41,6 +41,9 @@ internal static class AdminPolicies
     /// <summary>Authenticated API callers which issue login tickets.</summary>
     internal const string AuthenticatedLoginTicket = "Admin.AuthenticatedLoginTicket";
 
+    /// <summary>Authenticated API callers which manage the links of accounts to external services.</summary>
+    internal const string AuthenticatedAccountLink = "Admin.AuthenticatedAccountLink";
+
     /// <summary>
     /// The policy which needs an API key with the viewer role.
     /// The login cookie of the admin panel isn't accepted: the policy names the API key

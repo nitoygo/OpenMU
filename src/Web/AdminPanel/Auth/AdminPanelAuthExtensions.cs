@@ -131,6 +131,7 @@ public static class AdminPanelAuthExtensions
             .AddPolicy(AdminPolicies.AuthenticatedOperator, policy => policy.RequireAuthenticatedUser().RequireRole(AdminRoles.Operator))
             .AddPolicy(AdminPolicies.AuthenticatedCashShop, policy => policy.RequireAuthenticatedUser().RequireRole(AdminRoles.CashShop))
             .AddPolicy(AdminPolicies.AuthenticatedLoginTicket, policy => policy.RequireAuthenticatedUser().RequireRole(AdminRoles.LoginTicket))
+            .AddPolicy(AdminPolicies.AuthenticatedAccountLink, policy => policy.RequireAuthenticatedUser().RequireRole(AdminRoles.AccountLink))
             .AddPolicy(AdminPolicies.Viewer, policy => policy.AddRequirements(new AdminAccessRequirement(AdminRoles.Viewer)))
             .AddPolicy(AdminPolicies.Operator, policy => policy.AddRequirements(new AdminAccessRequirement(AdminRoles.Operator)))
             .AddPolicy(AdminPolicies.Administrator, policy => policy.AddRequirements(new AdminAccessRequirement(AdminRoles.Administrator)))

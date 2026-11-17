@@ -36,4 +36,9 @@ public enum ApiKeyRole
     /// The <see cref="AdminRoles.LoginTicket"/> role, which only allows to issue login tickets.
     /// </summary>
     LoginTicket,
+
+    /// <summary>
+    /// The <see cref="AdminRoles.AccountLink"/> role, which only allows to manage the links of accounts to external services.
+    /// </summary>
+    AccountLink,
 }

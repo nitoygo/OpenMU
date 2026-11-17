@@ -1382,6 +1382,7 @@
   <data name="RoleViewer" xml:space="preserve"><value>Somente leitura</value></data>
   <data name="RoleCashShop" xml:space="preserve"><value>Apenas moedas de cash shop</value></data>
   <data name="RoleLoginTicket" xml:space="preserve"><value>Apenas tickets de login</value></data>
+  <data name="RoleAccountLink" xml:space="preserve"><value>Apenas vínculos de conta</value></data>
   <data name="Guilds" xml:space="preserve">
     <value>Guildas</value>
   </data>

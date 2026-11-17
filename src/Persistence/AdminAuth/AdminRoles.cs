@@ -46,6 +46,17 @@ public static class AdminRoles
     public static string LoginTicket => "LoginTicket";
 
     /// <summary>
+    /// Gets the role which is allowed to read, create and remove the links of accounts to users of external services,
+    /// e.g. Discord, and to create accounts which are only linked to such a user.
+    /// </summary>
+    /// <remarks>
+    /// It's meant for the API key of a website which signs the players in with these services.
+    /// It's kept apart from <see cref="LoginTicket"/>: a link outlives a revoked key, so a leaked ticket key
+    /// shouldn't be able to plant one. Like <see cref="CashShop"/>, it's given alone.
+    /// </remarks>
+    public static string AccountLink => "AccountLink";
+
+    /// <summary>
     /// Gets all defined roles which build up on each other, from the least to the most privileged one.
     /// </summary>
     public static IReadOnlyList<string> All { get; } = Enum.GetNames<AdminRole>();
@@ -70,6 +81,12 @@ public static class AdminRoles
         if (string.Equals(role, LoginTicket, StringComparison.OrdinalIgnoreCase))
         {
             yield return LoginTicket;
+            yield break;
+        }
+
+        if (string.Equals(role, AccountLink, StringComparison.OrdinalIgnoreCase))
+        {
+            yield return AccountLink;
             yield break;
         }
 
