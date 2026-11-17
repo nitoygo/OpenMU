@@ -38,6 +38,9 @@ internal static class AdminPolicies
     /// <summary>Authenticated cash shop API callers.</summary>
     internal const string AuthenticatedCashShop = "Admin.AuthenticatedCashShop";
 
+    /// <summary>Authenticated API callers which issue login tickets.</summary>
+    internal const string AuthenticatedLoginTicket = "Admin.AuthenticatedLoginTicket";
+
     /// <summary>
     /// The policy which needs an API key with the viewer role.
     /// The login cookie of the admin panel isn't accepted: the policy names the API key

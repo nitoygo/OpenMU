@@ -7385,6 +7385,15 @@ namespace MUnique.OpenMU.Web.AdminPanel.Properties {
                 return ResourceManager.GetString("RoleCashShop", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Login tickets only.
+        /// </summary>
+        public static string RoleLoginTicket {
+            get {
+                return ResourceManager.GetString("RoleLoginTicket", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to Operator.
